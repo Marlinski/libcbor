@@ -2030,7 +2030,7 @@ public class CborParser {
         @Override
         public ParserState onItemFound(int majorType, byte b) throws RxParserException {
             if (majorType != expectedType) {
-                throw new RxParserException("ExtractContainerSize", "Expected major type: " + MapType + " but " + majorType + " found");
+                throw new RxParserException("ExtractContainerSize", "Expected major type: " + expectedType + " but " + majorType + " found");
             }
             return extractContainerSize;
         }
