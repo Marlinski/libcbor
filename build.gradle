@@ -11,6 +11,13 @@ test {
 }
 
 
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
 dependencies {
 
     // source
@@ -18,7 +25,6 @@ dependencies {
 
     // RxJava library for reactive programming
     api 'io.reactivex.rxjava2:rxjava:2.1.1'
-
 
     // ByteArrayDataOutput ByteStreams
     api (group: 'com.google.guava', name: 'guava', version: 'r05')

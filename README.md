@@ -1,7 +1,20 @@
 # libcbor 
 
 A small library for encoding and parsing CBOR objects. It follows the CBOR specification defined in the RFC 7049.
-This library is specially useful to encode/decode data in the context of a network protocol.
+This library is specially useful to encode/decode data in the context of a network protocol. You can use this library
+in your project with gradle using jitpack:
+
+```java
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+
+```java
+dependencies {
+   implementation 'com.github.RightMesh:libcbor:v1.0'
+}
+```
 
 
 # Features
