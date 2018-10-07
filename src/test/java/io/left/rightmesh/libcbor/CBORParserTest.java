@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -15,6 +16,7 @@ import io.left.rightmesh.libcbor.CBOR.DataItem;
 import io.left.rightmesh.libcbor.CBOR.IntegerItem;
 import io.left.rightmesh.libcbor.CBOR.TextStringItem;
 import io.left.rightmesh.libcbor.rxparser.RxParserException;
+import io.reactivex.Flowable;
 
 import static io.left.rightmesh.libcbor.CborParser.ExpectedType.Array;
 import static io.left.rightmesh.libcbor.CborParser.ExpectedType.Map;
@@ -854,6 +856,96 @@ public class CBORParserTest {
         }
     }
 
+
+    @Test
+    public void parseCustomItem() {
+        System.out.println("[+] cborparser: testing parse custom item with dynamic parser");
+        LinkedList<HeaderItem> items = new LinkedList<>();
+
+        CborParser dec = CBOR.parser()
+                .cbor_parse_custom_item(HeaderItem::new, (__, ___, item) -> items.add(item));
+
+        Flowable<String> f = Flowable.just(
+                "0x830a000a",
+                "0x840a010a816b64657374696e6174696f6e",
+                "0x850a020a816b64657374696e6174696f6e8166736f75726365",
+                "0x840a010a816b64657374696e6174696f6e",
+                "0x830a000a"
+        );
+        f.subscribe(
+                buffer -> {
+                    try {
+                        //System.out.println(buffer);
+                        ByteBuffer buf = hexToBuf(buffer);
+                        while(buf.hasRemaining()) {
+                            if (dec.read(buf)) {
+                                dec.reset();
+                            }
+                        }
+                    } catch (RxParserException rpe) {
+                        rpe.printStackTrace();
+                    }
+                },
+                e -> {});
+
+        assertEquals(5, items.size());
+    }
+
+    class HeaderItem implements CborParser.ParseableItem {
+        long version;
+        long flag;
+        long seq;
+        String source;
+        String destination;
+
+        @Override
+        public CborParser getItemParser() {
+            return CBOR.parser()
+                    .cbor_open_array((__, ___, i) -> {
+                        //System.out.println("size="+i);
+                    })
+                    .cbor_parse_int((__, ___, v) -> {
+                        version = v;
+                        //System.out.println("version="+v);
+                    })
+                    .cbor_parse_int((__, ___, f) -> {
+                        flag = f;
+                        //System.out.println("flag="+f);
+                    })
+                    .cbor_parse_int((__, ___, s) -> {
+                        seq = s;
+                        //System.out.println("seq="+s);
+                    })
+                    .do_insert_if(
+                            (__) -> (flag > 0),
+                            CBOR.parser().cbor_parse_custom_item(PeerItem::new, (__, ___, item) -> {
+                                destination = item.peer;
+                                //System.out.println("dest="+destination);
+                            }))
+                    .do_insert_if(
+                            (__) -> (flag > 1),
+                            CBOR.parser().cbor_parse_custom_item(PeerItem::new, (__, ___, item) -> {
+                                source = item.peer;
+                                //System.out.println("source="+source);
+                            }));
+        }
+    }
+
+    class PeerItem implements CborParser.ParseableItem {
+        String peer;
+
+        @Override
+        public CborParser getItemParser() {
+            return CBOR.parser()
+                    .cbor_open_array((__, ___, i) -> {
+                        if (i != 1) {
+                            throw new RxParserException("wrong number of element in primary block");
+                        }
+                    })
+                    .cbor_parse_text_string_full((__, id) -> peer = id);
+        }
+    }
+
     public ByteBuffer hexToBuf(String s) {
         s = s.replaceFirst("0x", "");
         int len = s.length();
@@ -880,5 +972,4 @@ public class CBORParserTest {
         buf2.reset();
         return equal;
     }
-
 }

@@ -121,7 +121,7 @@ public class CBOREncoderTest {
 
         enc.cbor_encode_float(3.4028234663852886e+38f);
         assertEquals("0xfa7f7fffff", getEncodedString());
-        
+
         /* test float special values */
         enc.cbor_encode_float(Float.POSITIVE_INFINITY);
         assertEquals("0xfa7f800000", getEncodedString());
@@ -150,11 +150,11 @@ public class CBOREncoderTest {
         enc.cbor_encode_double(Double.NaN);
         assertEquals("0xfb7ff8000000000000", getEncodedString());
 
-        
+
         enc.cbor_encode_double(Double.NEGATIVE_INFINITY);
         assertEquals("0xfbfff0000000000000", getEncodedString());
     }
-    
+
 
     @Test
     public void encodeAppendixA_SimpleValues() {
@@ -162,7 +162,7 @@ public class CBOREncoderTest {
 
         enc.cbor_encode_boolean(false);
         assertEquals("0xf4", getEncodedString());
-        
+
         enc.cbor_encode_boolean(true);
         assertEquals("0xf5", getEncodedString());
 
@@ -524,11 +524,42 @@ public class CBOREncoderTest {
         assertEquals("0xbf6346756ef563416d7421ff", getEncodedString());
     }
 
+    /*
+    @Test
+    public void encodeCustomItem() {
+        enc.cbor_start_array(3)
+                .cbor_encode_int(10)
+                .cbor_encode_int(0)
+                .cbor_encode_int(10);
+        System.out.println("encoded= "+getEncodedString());
+        enc.cbor_start_array(4)
+                .cbor_encode_int(10)
+                .cbor_encode_int(1)
+                .cbor_encode_int(10)
+                .merge(encodePeer("destination"));
+        System.out.println("encoded= "+getEncodedString());
+        enc.cbor_start_array(5)
+                .cbor_encode_int(10)
+                .cbor_encode_int(2)
+                .cbor_encode_int(10)
+                .merge(encodePeer("destination"))
+                .merge(encodePeer("source"));
+        System.out.println("encoded= "+getEncodedString());
+
+    }
+    */
+
+    public CborEncoder encodePeer(String peer) {
+        return CBOR.encoder()
+                .cbor_start_array(1)
+                .cbor_encode_text_string(peer);
+    }
+
     private String getEncodedString() {
         // get all in one buffer
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         enc.observe().subscribe(b -> {
-            while(b.hasRemaining()) {
+            while (b.hasRemaining()) {
                 baos.write(b.get());
             }
         });
@@ -539,7 +570,7 @@ public class CBOREncoderTest {
         // return the string
         Formatter formatter = new Formatter();
         formatter.format("0x");
-        for(byte b : baos.toByteArray()) {
+        for (byte b : baos.toByteArray()) {
             formatter.format("%02x", b);
         }
         return (formatter.toString());
