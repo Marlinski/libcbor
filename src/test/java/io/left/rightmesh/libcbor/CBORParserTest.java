@@ -858,17 +858,18 @@ public class CBORParserTest {
 
 
     @Test
-    public void parseCustomItem() {
-        System.out.println("[+] cborparser: testing parse custom item with dynamic parser");
+    public void parseSeveralCustomItem() {
+        System.out.println("[+] cborparser: testing parse custom item");
         LinkedList<HeaderItem> items = new LinkedList<>();
 
         CborParser dec = CBOR.parser()
                 .cbor_parse_custom_item(HeaderItem::new, (__, ___, item) -> items.add(item));
 
         Flowable<String> f = Flowable.just(
-                "0x830a000a",
-                "0x840a010a816b64657374696e6174696f6e",
-                "0x850a020a816b64657374696e6174696f6e8166736f75726365",
+                "0x830a",
+                "0x000a840a010a81",
+                "0x6b64657374696e6174696f6e850a020a",
+                "0x816b64657374696e6174696f6e8166736f75726365",
                 "0x840a010a816b64657374696e6174696f6e",
                 "0x830a000a"
         );
@@ -879,6 +880,7 @@ public class CBORParserTest {
                         ByteBuffer buf = hexToBuf(buffer);
                         while(buf.hasRemaining()) {
                             if (dec.read(buf)) {
+                                //System.out.println("score!");
                                 dec.reset();
                             }
                         }
