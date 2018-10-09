@@ -66,7 +66,6 @@ import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.DoublePrecisi
 public class CborParser {
 
     public class ParserInCallback {
-
         /**
          * Add a filter for the actual parser (runner) that will run for every parsed buffer
          * until undo_for_each is called.
@@ -107,6 +106,34 @@ public class CborParser {
             }
             return this;
         }
+
+        /**
+         * save an object so it is accessible by any other callback.
+         * It overwrites any object that was already saved with the same key.
+         *
+         * @param key to retrieve the object
+         * @param object to be saved
+         * @return ParserInCallback
+         */
+        public ParserInCallback save(String key, Object object) {
+            items.put(key, object);
+            return this;
+        }
+
+        /**
+         * Returns a previously saved item.
+         * @param key to retrieve the object
+         * @param <T> type of the object
+         * @return the saved object
+         */
+        public <T> T get(String key) {
+            return (T)items.get(key);
+        }
+
+        public ParserInCallback discard_item(String key) {
+            items.remove(key);
+            return this;
+        }
     }
 
     private ParserInCallback thisInCallback;
@@ -123,6 +150,7 @@ public class CborParser {
     private LinkedList<ParserState> doneQueue = new LinkedList<>();
     private LinkedList<ParserState> parserQueue = new LinkedList<>();
     private Map<String, FilterCallback> filters = new HashMap<>();
+    private Map<String, Object> items = new HashMap<>();
     private ParserState state = null;
 
     private boolean dequeue() {
@@ -161,6 +189,8 @@ public class CborParser {
         parserQueue.clear();
         parserQueue.addAll(resetQueue);
         resetQueue.clear();
+        filters.clear();
+        items.clear();
     }
 
 

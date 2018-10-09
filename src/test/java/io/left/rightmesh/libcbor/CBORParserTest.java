@@ -906,12 +906,13 @@ public class CBORParserTest {
                     .cbor_open_array((__, ___, i) -> {
                         //System.out.println("size="+i);
                     })
-                    .cbor_parse_int((__, ___, v) -> {
+                    .cbor_parse_int((p, ___, v) -> {
                         version = v;
                         //System.out.println("version="+v);
                     })
-                    .cbor_parse_int((__, ___, f) -> {
+                    .cbor_parse_int((p, ___, f) -> {
                         flag = f;
+                        p.save("flag", flag);
                         //System.out.println("flag="+f);
                     })
                     .cbor_parse_int((__, ___, s) -> {
@@ -919,7 +920,7 @@ public class CBORParserTest {
                         //System.out.println("seq="+s);
                     })
                     .do_insert_if(
-                            (__) -> (flag > 0),
+                            (p) -> (p.<Long>get("flag") > 0),
                             CBOR.parser().cbor_parse_custom_item(PeerItem::new, (__, ___, item) -> {
                                 destination = item.peer;
                                 //System.out.println("dest="+destination);
