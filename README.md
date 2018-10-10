@@ -83,6 +83,8 @@ In this case, each ByteBuffer will be of size 2048, the same ByteBuffer will be 
 
 # Decoding Example
 
+## Build the Parser
+
 The following shows an example of a simple parser to later decode the first header encoded above:
 
 ```java
@@ -102,7 +104,30 @@ is parsed, most callback usually have at least three parameters:
 
 Check the source to see a list of all the method to parse primitive items.
 
-### parse custom item with cbor_parse_custom_item
+
+## Consuming buffer to be parsed
+
+A CborParser can consumes buffer by calling read like so:
+
+```java
+public void onRecvBuffer(ByteBuffer buffer) {
+    while(buffer.hasRemaining()) {
+        if(parser.read(buffer)) {
+            parser.reset();
+        }
+    }
+}
+```
+
+read() takes a ByteBuffer as a parameter and will try to parse the buffer as dictated by the CborParser and will advance the ByteBuffer position
+accordingly. It returns false if more buffer is required and true if the entire parsing sequence has been finished. It will not advance the bytebuffer
+position more than what it actually decoded, it is thus possible that the CborParser returns true but more data are still available in the bytebuffer.
+If the buffer stream is a series of similar CBOR pattern, the CborParser can simply be reset and be reused like in the example above.
+
+
+# Parser Special Features
+
+## parse custom item: cbor_parse_custom_item
 
 It is possible to parse a CustomItem by Implementing CborParser.ParseableItem. Such class must implement the getItemparser()
 that returns a CborParser object used to decode the custom item:
@@ -146,7 +171,7 @@ cbor_parse_custom_item requires two parameters:
 On runtime, when the parser state machine advance to the custom item call, it instantiate a new PeerItem using the factory and invoke getItemParser()
 and uses this parser to parse the data. When the data is parsed, the callback is called at which point we can retrieve the parsed Peer.
 
-### do_insert_if
+## Conditional Parsing: do_insert_if
 
 Additionally with libcbor, it is possible to do conditional parsing. For instance in the example above, the flag may 
 give an hint wether or not we must parsed the two peer item (source and destination). We can perform conditional parsing like so:
@@ -188,7 +213,7 @@ CborParser parser = CBOR.parser()
 ```
 
 
-### do_here
+## Run tasks: do_here
 
 Anywhere in the parsing sequence, you can use **do_here** to perform a certain task, 
 you may for instance print whenever the parsing start and when it is finish:
@@ -203,7 +228,7 @@ CborParser parser = CBOR.parser()
                     .do_here((__) -> System.out.println("parsing finish");
 ```
 
-### do_for_each and undo_for_each
+## Process every parsed buffer:  do_for_each and undo_for_each
 
 You can use **do_for_each** to run a certain task for every buffer that was successfully parsed and **undo_for_each** to stop.
 For instance, say you are parsing a packet header but you also need to perform a CRC for every buffer that belongs to this header
@@ -250,7 +275,7 @@ CborParser parser = CBOR.parser()
                     .cbor_parse_int((__, ___, s) -> header.seq = s)
 ```
 
-### save() and get()
+## Access parsed item from downstream: save() and get()
 
 If a parsed value is needed later in the parsing sequence, you can either save it in a variable outside of the parsing sequence, or use
 parserInCallback.save() and retrieve it later with get(). For instance in the previous example, we need to check the value of the flag
@@ -325,27 +350,7 @@ CBOR.parser()
 ```
 
 
-## Consuming buffer to be parsed
-
-A CborParser can consumes buffer by calling read like so:
-
-```java
-public void onRecvBuffer(ByteBuffer buffer) {
-    while(buffer.hasRemaining()) {
-        if(parser.read(buffer)) {
-            parser.reset();
-        }
-    }
-}
-```
-
-read() takes a ByteBuffer as a parameter and will try to parse the buffer as dictated by the CborParser and will advance the ByteBuffer position
-accordingly. It returns false if more buffer is required and true if the entire parsing sequence has been finished. It will not advance the bytebuffer
-position more than what it actually decoded, it is thus possible that the CborParser returns true but more data are still available in the bytebuffer.
-If the buffer stream is a series of similar CBOR pattern, the CborParser can simply be reset and be reused like in the example above.
-
-
-## License
+# License
 
     Copyright 2018 Lucien Loiseau
 
