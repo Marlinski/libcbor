@@ -345,18 +345,19 @@ CBOR.parser()
                 p.undo_for_each_now("crc16consumer");
             } else {
                 p.undo_for_each_now("crc32consumer");
-            }
-            .cbor_parse_int((__, ___, s) -> header.seq = s)
-            .undo_for_each("crc-16");
-            .undo_for_each("crc-16");
-            .cbor_parse_byte_string(
-                (parser, tags, size) -> {},
-                (parser, tags, buffer) -> {
-                    if(parser.<Boolean>get(b)) {
-                        p.<CRC16>get("crc32").check(buffer);
-                    } else {
-                        p.<CRC16>get("crc32").check(buffer);
-                    }});
+            })
+    .cbor_parse_int((__, ___, s) -> header.seq = s)
+    .undo_for_each("crc16consumer")  // one of them was already disabled but it doesn't matter
+    .undo_for_each("crc32consumer")
+    .cbor_parse_byte_string(
+            (parser, tags, size) -> {},
+            (parser, tags, buffer) -> {
+                if(parser.<Boolean>get(b)) {
+                    p.<CRC16>get("crc32").check(buffer);
+                } else {
+                    p.<CRC16>get("crc32").check(buffer);
+                }
+            });
 ```
 
 
