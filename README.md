@@ -166,7 +166,144 @@ the do_insert_if call requires two parameters:
 * a CallbackCondition that is called on runtime and should return a boolean
 * A CborParser that will be inserted if the CallbackCondition returns true
 
-They are also some other clever method such as do_here that enables the developper to perform some task when the parser has advanced to a certain state.
+
+## Others
+
+### do_here
+
+Anywhere in the parsing sequence, you can use **do_here** to perform a certain task, 
+you may for instance print whenever the parsing start and when it is finish:
+
+```java
+Header header = new Header();
+CborParser parser = CBOR.parser()
+                    .do_here((__) -> System.out.println("parsing started");
+                    .cbor_parse_int((__, ___, v) -> header.version = v)
+                    .cbor_parse_int((__, ___, f) -> header.flag = f)
+                    .cbor_parse_int((__, ___, s) -> header.seq = s)
+                    .do_here((__) -> System.out.println("parsing finish");
+```
+
+### do_for_each and undo_for_each
+
+You can use **do_for_each** to run a certain task for every buffer that was successfully parsed and **undo_for_each** to stop.
+For instance, say you are parsing a packet header but you also need to perform a CRC for every buffer that belongs to this header
+and compare it to the CRC that is right after the header:
+
+```java
+HeaderWithCRC header = new HeaderWithCRC();
+CborParser parser = CBOR.parser()
+                    .do_here((__) -> crc.init());
+                    .do_for_each("crc-16", (__, buffer) -> crc.read(buffer));
+                    .cbor_parse_int((__, ___, v) -> header.version = v)
+                    .cbor_parse_int((__, ___, f) -> header.flag = f)
+                    .cbor_parse_int((__, ___, s) -> header.seq = s)
+                    .undo_for_each("crc-16");
+                    .cbor_parse_byte_string(
+                        (parser, tags, size) -> {},
+                        (parser, tags, buffer) -> crc.check(buffer)); 
+```
+
+Alternatively, you can also trigger **do_for_each** from within a callback to react to a value that was just parsed. 
+For instance a boolean that indicate weter it is CRC16 or CRC32, in that case we would start consumming both CRC
+but will disable one of them as soon as we know which one we need:
+
+```java
+HeaderWithCRC header = new HeaderWithCRC();
+CRC16 crc16 = new CRC16();
+CRC32 crc32 = new CRC32();
+
+CborParser parser = CBOR.parser()
+                    .do_here((__) -> {
+                        crc16.init());
+                        crc32.init());
+                    })
+                    .do_for_each("crc-16", (__, buffer) -> crc16.read(buffer));
+                    .do_for_each("crc-32", (__, buffer) -> crc32.read(buffer));
+                    .cbor_parse_int((__, ___, v) -> header.version = v)
+                    .cbor_parse_int((__, ___, f) -> header.flag = f)
+                    .cbor_parse_boolean((p, b) ->
+                        if(b) {
+                            p.undo_for_each_now("crc-16");
+                        } else {
+                            p.undo_for_each_now("crc-16");
+                        }
+                    .cbor_parse_int((__, ___, s) -> header.seq = s)
+```
+
+### save() and get()
+
+If a parsed value is needed later in the parsing sequence, you can either save it in a variable outside of the parsing sequence, or use
+parserInCallback.save() and retrieve it later with get(). For instance in the previous example, we need to check the value of the flag
+to decide which crc to check:
+
+```java
+HeaderWithCRC header = new HeaderWithCRC();
+CRC16 crc16 = new CRC16();
+CRC32 crc32 = new CRC32();
+
+CborParser parser = CBOR.parser()
+                    .do_here((__) -> {
+                        crc16.init());
+                        crc32.init());
+                    })
+                    .do_for_each("crc-16", (__, buffer) -> crc16.read(buffer));
+                    .do_for_each("crc-32", (__, buffer) -> crc32.read(buffer));
+                    .cbor_parse_int((__, ___, v) -> header.version = v)
+                    .cbor_parse_int((__, ___, f) -> header.flag = f)
+                    .cbor_parse_boolean((p, b) ->
+                        if(b) {
+                            p.undo_for_each_now("crc-16");
+                        } else {
+                            p.undo_for_each_now("crc-32");
+                        }
+                    .cbor_parse_int((__, ___, s) -> header.seq = s)
+                    .undo_for_each("crc-16");
+                    .undo_for_each("crc-16");
+                    .cbor_parse_byte_string(
+                        (p, tags, size) -> {},
+                        (p, tags, buffer) -> {
+                            if(p.<Boolean>get(b)) {
+                                crc32.check(buffer);
+                            } else {
+                                crc16.check(buffer);
+                            }
+                        });
+```
+
+Knowing that, every variable could be processed in-parser and would not require any variable outside, the final example would be a complete
+self-contained parser:
+
+```java
+
+CBOR.parser()
+    .do_here((p) -> {
+            p.save("header", new HeaderWithCRC());
+            p.save("crc16", CRC16.create());
+            p.save("crc32", CRC32.create());
+            })
+    .do_for_each("crc16consumer", (p, buffer) -> p.<CRC16>get("crc16").read(buffer))
+    .do_for_each("crc32consumer", (p, buffer) -> p.<CRC16>get("crc32").read(buffer));
+    .cbor_parse_int((__, ___, v) -> header.version = v)
+    .cbor_parse_int((__, ___, f) -> header.flag = f)
+    .cbor_parse_boolean((p, b) ->
+            if(b) {
+                p.undo_for_each_now("crc16consumer");
+            } else {
+                p.undo_for_each_now("crc32consumer");
+            }
+            .cbor_parse_int((__, ___, s) -> header.seq = s)
+            .undo_for_each("crc-16");
+            .undo_for_each("crc-16");
+            .cbor_parse_byte_string(
+                (parser, tags, size) -> {},
+                (parser, tags, buffer) -> {
+                    if(parser.<Boolean>get(b)) {
+                        p.<CRC16>get("crc32").check(buffer);
+                    } else {
+                        p.<CRC16>get("crc32").check(buffer);
+                    }});
+```
 
 
 ## Consuming buffer to be parsed
