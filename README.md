@@ -83,8 +83,6 @@ In this case, each ByteBuffer will be of size 2048, the same ByteBuffer will be 
 
 # Decoding Example
 
-## Parser Builder
-
 The following shows an example of a simple parser to later decode the first header encoded above:
 
 ```java
@@ -101,6 +99,10 @@ is parsed, most callback usually have at least three parameters:
 * A ParserInCallback pointer which can be used to modify the parser on runtime as during decoding 
 * A list of CBOR tags that were preceding the parsed item
 * the parsed item (it can be a long, float, array, map, or a custom item)
+
+Check the source to see a list of all the method to parse primitive items.
+
+### parse custom item with cbor_parse_custom_item
 
 It is possible to parse a CustomItem by Implementing CborParser.ParseableItem. Such class must implement the getItemparser()
 that returns a CborParser object used to decode the custom item:
@@ -144,6 +146,8 @@ cbor_parse_custom_item requires two parameters:
 On runtime, when the parser state machine advance to the custom item call, it instantiate a new PeerItem using the factory and invoke getItemParser()
 and uses this parser to parse the data. When the data is parsed, the callback is called at which point we can retrieve the parsed Peer.
 
+### do_insert_if
+
 Additionally with libcbor, it is possible to do conditional parsing. For instance in the example above, the flag may 
 give an hint wether or not we must parsed the two peer item (source and destination). We can perform conditional parsing like so:
 
@@ -166,8 +170,23 @@ the do_insert_if call requires two parameters:
 * a CallbackCondition that is called on runtime and should return a boolean
 * A CborParser that will be inserted if the CallbackCondition returns true
 
+You can also insert a parser from within a callback using **do_insert_now**:
 
-## Others
+```java
+Header header = new Header();
+CborParser parser = CBOR.parser()
+                    .cbor_parse_int((__, ___, v) -> header.version = v)
+                    .cbor_parse_int((__, ___, f) -> header.flag = f)
+                    .cbor_parse_int((p, ___, s) -> {
+                        header.seq = s
+                        if (header.flag == FLAG_HEADER_CONTAINS_DESTINATION) {
+                            p.insert_now(
+                                CBOR.parser().cbor_parse_custom_item(PeerItem::new, (__, ___, item) -> header.destination = item.peer)
+                            );
+                        }
+                    });
+```
+
 
 ### do_here
 
