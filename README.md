@@ -216,7 +216,7 @@ CborParser parser = CBOR.parser()
 ## Run tasks: do_here
 
 Anywhere in the parsing sequence, you can use **do_here** to perform a certain task, 
-you may for instance print whenever the parsing start and when it is finish:
+you may for instance print info whenever the parsing start and when it is finish:
 
 ```java
 Header header = new Header();
@@ -248,6 +248,10 @@ CborParser parser = CBOR.parser()
                         (parser, tags, buffer) -> crc.check(buffer)); 
 ```
 
+**do_for_each** takes two argument:
+* A String that is uses as a key to identify this specific task, it is used to disable it with **undo_for_each**
+* A Callback that takes a ParserInCallback and a buffer as a parameter
+
 Alternatively, you can also trigger **do_for_each** from within a callback to react to a value that was just parsed. 
 For instance a boolean that indicate weter it is CRC16 or CRC32, in that case we would start consumming both CRC
 but will disable one of them as soon as we know which one we need:
@@ -270,7 +274,7 @@ CborParser parser = CBOR.parser()
                         if(b) {
                             p.undo_for_each_now("crc-16");
                         } else {
-                            p.undo_for_each_now("crc-16");
+                            p.undo_for_each_now("crc-32");
                         }
                     .cbor_parse_int((__, ___, s) -> header.seq = s)
 ```
@@ -302,8 +306,6 @@ CborParser parser = CBOR.parser()
                             p.undo_for_each_now("crc-32");
                         }
                     .cbor_parse_int((__, ___, s) -> header.seq = s)
-                    .undo_for_each("crc-16");
-                    .undo_for_each("crc-16");
                     .cbor_parse_byte_string(
                         (p, tags, size) -> {},
                         (p, tags, buffer) -> {
@@ -314,6 +316,14 @@ CborParser parser = CBOR.parser()
                             }
                         });
 ```
+
+**save** takes two parameters:
+* The key to identify the Object to be saved
+* the object itself
+
+**get** takes only one parameter that is the key used to save the object. By default it returns an Object but you can use 
+the template <T> to force cast the object and avoid a manual casting. No check is done to ensure that the object saved is of 
+the same type.
 
 Knowing that, every variable could be processed in-parser and would not require any variable outside, the final example would be a complete
 self-contained parser:
