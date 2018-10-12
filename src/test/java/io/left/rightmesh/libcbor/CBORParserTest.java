@@ -5,7 +5,6 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -22,7 +21,7 @@ import static io.left.rightmesh.libcbor.CborParser.ExpectedType.Array;
 import static io.left.rightmesh.libcbor.CborParser.ExpectedType.Map;
 import static io.left.rightmesh.libcbor.Constants.CborType.CborSimpleType;
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -285,12 +284,14 @@ public class CBORParserTest {
             boolean b;
 
             byte[] a0 = {};
-            b = dec.cbor_parse_byte_string_unsafe((__, ___, chunk) -> assertArrayEquals(a0, chunk.array()))
+            b = dec.cbor_parse_byte_string_unsafe((__, ___, chunk) ->
+                    assertTrue(ByteBuffer.wrap(a0).equals(chunk)))
                     .read(hexToBuf("0x40"));
             assertEquals(true, b);
 
             byte[] a1 = {0x01, 0x02, 0x03, 0x04};
-            b = dec.cbor_parse_byte_string_unsafe((__, ___, str) -> assertArrayEquals(a1, str.array()))
+            b = dec.cbor_parse_byte_string_unsafe((__, ___, str) ->
+                    assertTrue(ByteBuffer.wrap(a1).equals(str)))
                     .read(hexToBuf("0x4401020304"));
             assertEquals(true, b);
 
@@ -338,7 +339,8 @@ public class CBORParserTest {
             final int o[] = new int[] {0}; // trick to modify i from lambda
             byte[][] a = {{0x01, 0x02}, {0x03, 0x04, 0x05}};
             b = dec.cbor_parse_byte_string(
-                    (__, chunk) -> assertArrayEquals(a[o[0]++], chunk.array())
+                    (__, chunk) ->
+                            assertTrue(ByteBuffer.wrap(a[o[0]++]).equals(chunk))
             ).read(hexToBuf("0x5f42010243030405ff"));
             assertEquals(true, b);
 
@@ -418,7 +420,7 @@ public class CBORParserTest {
             b = dec.cbor_parse_tag((__, tag) -> assertEquals(23, (long) tag))
                     .cbor_parse_byte_string_unsafe((__, tags, d) -> {
                         assertEquals(0, tags.size());
-                        assertArrayEquals(a1, d.array());
+                        assertTrue(ByteBuffer.wrap(a1).equals(d));
                     }).read(hexToBuf("0xd74401020304"));
             assertEquals(true, b);
 
@@ -426,7 +428,7 @@ public class CBORParserTest {
                     (__, tags, d) -> {
                         assertEquals(1, tags.size());
                         assertEquals(23, (long) tags.getFirst());
-                        assertArrayEquals(a1, d.array());
+                        assertTrue(ByteBuffer.wrap(a1).equals(d));
                     }).read(hexToBuf("0xd74401020304"));
             assertEquals(true, b);
 

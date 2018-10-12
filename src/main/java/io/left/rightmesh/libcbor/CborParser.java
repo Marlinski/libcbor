@@ -1,8 +1,5 @@
 package io.left.rightmesh.libcbor;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -1931,27 +1928,39 @@ public class CborParser {
     }
 
     private abstract static class CborParseStringUnsafe extends CborParseString {
-        ByteArrayDataOutput output;
+        ByteBuffer output;
+        private static final int increasingFactor = 2;
 
         CborParseStringUnsafe(int expectedType) {
             super(expectedType);
         }
 
         @Override
-        public void onEnter() throws RxParserException {
-            output = ByteStreams.newDataOutput();
+        public void onEnter() {
+            output = ByteBuffer.allocate(1024);
+        }
+
+        private void reallocate() {
+            ByteBuffer newbuf = ByteBuffer.allocate(output.capacity()*increasingFactor);
+            output.limit(output.position());
+            output.rewind();
+            newbuf.put(output);
+            output.clear();
+            output = newbuf;
         }
 
         @Override
-        public void onNextChunk(ByteBuffer buffer) throws RxParserException {
-            while (buffer.hasRemaining()) {
-                output.write(buffer.get());
+        public void onNextChunk(ByteBuffer buffer) {
+            while(output.remaining() < buffer.remaining()) {
+                reallocate();
             }
+            output.put(buffer);
         }
 
         @Override
         public ParserState onSuccess() throws RxParserException {
-            return onSuccessUnsafe(ByteBuffer.wrap(output.toByteArray()));
+            output.flip();
+            return onSuccessUnsafe(output);
         }
 
         public abstract ParserState onSuccessUnsafe(ByteBuffer buffer) throws RxParserException;
