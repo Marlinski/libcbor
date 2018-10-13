@@ -127,7 +127,7 @@ public class CborParser {
             return (T)items.get(key);
         }
 
-        public ParserInCallback discard_item(String key) {
+        public ParserInCallback remove(String key) {
             items.remove(key);
             return this;
         }
@@ -160,7 +160,7 @@ public class CborParser {
         }
     }
 
-    private boolean isDone() {
+    public boolean isDone() {
         return (state == null) && (parserQueue.size() == 0);
     }
 
@@ -289,6 +289,34 @@ public class CborParser {
                 parserQueue.addFirst(s);
             }
         }
+        return this;
+    }
+
+    /**
+     * save an object so it is accessible by any other callback.
+     * It overwrites any object that was already saved with the same key.
+     *
+     * @param key to retrieve the object
+     * @param object to be saved
+     * @return CborParser
+     */
+    public CborParser save(String key, Object object) {
+        items.put(key, object);
+        return this;
+    }
+
+    /**
+     * Returns a previously saved item.
+     * @param key to retrieve the object
+     * @param <T> type of the object
+     * @return the saved object
+     */
+    public <T> T get(String key) {
+        return (T)items.get(key);
+    }
+
+    public CborParser discard(String key) {
+        items.remove(key);
         return this;
     }
 
