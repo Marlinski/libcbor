@@ -105,20 +105,20 @@ public class CborParser {
         }
 
         /**
-         * save an object so it is accessible by any other callback.
+         * set an object in a map so it is accessible by any other callback.
          * It overwrites any object that was already saved with the same key.
          *
          * @param key to retrieve the object
          * @param object to be saved
          * @return ParserInCallback
          */
-        public ParserInCallback save(String key, Object object) {
+        public ParserInCallback set(String key, Object object) {
             items.put(key, object);
             return this;
         }
 
         /**
-         * Returns a previously saved item.
+         * Returns a previously saved item from the map.
          * @param key to retrieve the object
          * @param <T> type of the object
          * @return the saved object
@@ -130,6 +130,36 @@ public class CborParser {
         public ParserInCallback remove(String key) {
             items.remove(key);
             return this;
+        }
+
+        /**
+         * set an object in a register so it is accessible by any other callback.
+         * It overwrites any object that was already saved with the same key.
+         *
+         * @param pos position of the object
+         * @param object to be saved
+         * @return ParserInCallback
+         */
+        public ParserInCallback setReg(int pos, Object object) {
+            if(pos > register.length) {
+                return this;
+            }
+
+            register[pos] = object;
+            return this;
+        }
+
+        /**
+         * Returns a previously saved item from the register.
+         * @param pos to retrieve the object
+         * @param <T> type of the object
+         * @return the saved object
+         */
+        public <T> T getReg(int pos) {
+            if(pos >= register.length) {
+                return null;
+            }
+            return (T)register[pos];
         }
     }
 
@@ -149,6 +179,8 @@ public class CborParser {
     private Map<String, FilterCallback> filters = new HashMap<>();
     private Map<String, Object> items = new HashMap<>();
     private ParserState state = null;
+    private Object[] register = new Object[10];
+
 
     private boolean dequeue() {
         if (parserQueue.isEmpty()) {
@@ -160,20 +192,102 @@ public class CborParser {
         }
     }
 
+    /* parser utility method */
+
+    /**
+     * check wether the parser has done parsing all its sequence
+     *
+     * @return true if parser is done, false otherwise
+     */
     public boolean isDone() {
         return (state == null) && (parserQueue.size() == 0);
     }
 
+    /**
+     * add a callback for every buffer successfully processed by this parser
+     *
+     * @param key to identify the callback
+     * @param cb the callback
+     */
     private void add_filter(String key, FilterCallback cb) {
         if (key != null && cb != null) {
             filters.put(key, cb);
         }
     }
 
+    /**
+     * remove a filter callback
+     *
+     * @param key to the callback
+     */
     private void remove_filter(String key) {
         if (key != null) {
             filters.remove(key);
         }
+    }
+
+    /**
+     * set an object so it is accessible by any other callback.
+     * It overwrites any object that was already saved with the same key.
+     *
+     * @param key to retrieve the object
+     * @param object to be saved
+     * @return CborParser
+     */
+    public CborParser set(String key, Object object) {
+        items.put(key, object);
+        return this;
+    }
+
+    /**
+     * Returns a previously saved item.
+     * @param key to retrieve the object
+     * @param <T> type of the object
+     * @return the saved object
+     */
+    public <T> T get(String key) {
+        return (T)items.get(key);
+    }
+
+    /**
+     * remove an object from the map
+     *
+     * @param key to the object
+     * @return this parser
+     */
+    public CborParser remove(String key) {
+        items.remove(key);
+        return this;
+    }
+
+    /**
+     * set an object in a register so it is accessible by any other callback.
+     * It overwrites any object that was already saved with the same key.
+     *
+     * @param pos position of the object
+     * @param object to be saved
+     * @return ParserInCallback
+     */
+    public CborParser setReg(int pos, Object object) {
+        if(pos >= register.length) {
+            return this;
+        }
+
+        register[pos] = object;
+        return this;
+    }
+
+    /**
+     * Returns a previously saved item from the register.
+     * @param pos to retrieve the object
+     * @param <T> type of the object
+     * @return the saved object
+     */
+    public <T> T getReg(int pos) {
+        if(pos > register.length) {
+            return null;
+        }
+        return (T)register[pos];
     }
 
     /* parser method */
@@ -188,6 +302,9 @@ public class CborParser {
         resetQueue.clear();
         filters.clear();
         items.clear();
+        for(int i = 0; i < register.length; i++) {
+            register[i] = null;
+        }
     }
 
 
@@ -289,34 +406,6 @@ public class CborParser {
                 parserQueue.addFirst(s);
             }
         }
-        return this;
-    }
-
-    /**
-     * save an object so it is accessible by any other callback.
-     * It overwrites any object that was already saved with the same key.
-     *
-     * @param key to retrieve the object
-     * @param object to be saved
-     * @return CborParser
-     */
-    public CborParser save(String key, Object object) {
-        items.put(key, object);
-        return this;
-    }
-
-    /**
-     * Returns a previously saved item.
-     * @param key to retrieve the object
-     * @param <T> type of the object
-     * @return the saved object
-     */
-    public <T> T get(String key) {
-        return (T)items.get(key);
-    }
-
-    public CborParser discard(String key) {
-        items.remove(key);
         return this;
     }
 

@@ -914,7 +914,7 @@ public class CBORParserTest {
                     })
                     .cbor_parse_int((p, ___, f) -> {
                         flag = f;
-                        p.save("flag", flag);
+                        p.set("flag", flag);
                         //System.out.println("flag="+f);
                     })
                     .cbor_parse_int((__, ___, s) -> {
