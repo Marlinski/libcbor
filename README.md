@@ -197,7 +197,7 @@ the do_insert_if call requires two parameters:
 * a CallbackCondition that is called on runtime and should return a boolean
 * A CborParser that will be inserted if the CallbackCondition returns true
 
-You can also insert a parser from within a callback using **do_insert_now**:
+You can also insert a parser next within a callback using **do_insert_now**:
 
 ```java
 Header header = new Header();
@@ -254,7 +254,7 @@ CborParser parser = CBOR.parser()
 * A String that is uses as a key to identify this specific task, it is used to disable it with **undo_for_each**
 * A Callback that takes a ParserInCallback and a buffer as a parameter
 
-Alternatively, you can also trigger **do_for_each** from within a callback to react to a value that was just parsed. 
+Alternatively, you can also trigger **do_for_each** next within a callback to react to a value that was just parsed.
 For instance a boolean that indicate weter it is CRC16 or CRC32, in that case we would start consumming both CRC
 but will disable one of them as soon as we know which one we need:
 
@@ -281,7 +281,7 @@ CborParser parser = CBOR.parser()
                     .cbor_parse_int((__, ___, s) -> header.seq = s)
 ```
 
-## Access parsed item from downstream: save() and get()
+## Access parsed item next downstream: save() and get()
 
 If a parsed value is needed later in the parsing sequence, you can either save it in a variable outside of the parsing sequence, or use
 parserInCallback.save() and retrieve it later with get(). For instance in the previous example, we need to check the value of the flag
