@@ -1,33 +1,4 @@
-package io.left.rightmesh.libcbor;
-
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value16Bit;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value32Bit;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value64Bit;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value8Bit;
-import static io.left.rightmesh.libcbor.Constants.CborInternals.BreakByte;
-import static io.left.rightmesh.libcbor.Constants.CborInternals.MajorTypeShift;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborArrayWithIndefiniteLength;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborByteStringWithIndefiniteLength;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborDoublePrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborHalfPrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborMapWithIndefiniteLength;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborSimpleValue1ByteFollow;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborSinglePrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborTextStringWithIndefiniteLength;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.NegativeIntegerType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.SimpleTypesType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.UnsignedIntegerType;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.Break;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.FalseValue;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.NullValue;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.TrueValue;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.UndefinedValue;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborArrayType;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborByteStringType;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborMapType;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborSimpleType;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborTagType;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborTextStringType;
+package io.marlinski.libcbor;
 
 import java.lang.reflect.Array;
 import java.nio.BufferOverflowException;
@@ -35,9 +6,9 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Map;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.subscribers.DisposableSubscriber;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.subscribers.DisposableSubscriber;
 
 public class CborEncoder {
 
@@ -183,15 +154,15 @@ public class CborEncoder {
     }
 
     public CborEncoder cbor_encode_boolean(boolean b) {
-        return encode_number((byte) (CborSimpleType), b ? TrueValue : FalseValue);
+        return encode_number((byte) (Constants.CborType.CborSimpleType), b ? Constants.CborSimpleValues.TrueValue : Constants.CborSimpleValues.FalseValue);
     }
 
     public CborEncoder cbor_encode_null() {
-        return encode_number((byte) (CborSimpleType), NullValue);
+        return encode_number((byte) (Constants.CborType.CborSimpleType), Constants.CborSimpleValues.NullValue);
     }
 
     public CborEncoder cbor_encode_undefined() {
-        return encode_number((byte) (CborSimpleType), UndefinedValue);
+        return encode_number((byte) (Constants.CborType.CborSimpleType), Constants.CborSimpleValues.UndefinedValue);
     }
 
     /**
@@ -250,9 +221,9 @@ public class CborEncoder {
      */
     public CborEncoder cbor_start_array(long length) {
         if (length < 0) {
-            return put((byte) CborArrayWithIndefiniteLength);
+            return put((byte) Constants.CborJumpTable.CborArrayWithIndefiniteLength);
         } else {
-            return encode_number((byte) CborArrayType, length);
+            return encode_number((byte) Constants.CborType.CborArrayType, length);
         }
     }
 
@@ -262,7 +233,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_stop_array() {
-        return put((byte) BreakByte);
+        return put((byte) Constants.CborInternals.BreakByte);
     }
 
     /**
@@ -275,9 +246,9 @@ public class CborEncoder {
      */
     public CborEncoder cbor_start_map(long length) {
         if (length < 0) {
-            return put((byte) CborMapWithIndefiniteLength);
+            return put((byte) Constants.CborJumpTable.CborMapWithIndefiniteLength);
         } else {
-            return encode_number((byte) CborMapType, length);
+            return encode_number((byte) Constants.CborType.CborMapType, length);
         }
     }
 
@@ -287,7 +258,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_stop_map() {
-        return put((byte) BreakByte);
+        return put((byte) Constants.CborInternals.BreakByte);
     }
 
     /**
@@ -301,9 +272,9 @@ public class CborEncoder {
      */
     public CborEncoder cbor_start_byte_string(long length) {
         if (length < 0) {
-            return put((byte) CborByteStringWithIndefiniteLength);
+            return put((byte) Constants.CborJumpTable.CborByteStringWithIndefiniteLength);
         } else {
-            return encode_number((byte) CborByteStringType, length);
+            return encode_number((byte) Constants.CborType.CborByteStringType, length);
         }
     }
 
@@ -324,7 +295,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_stop_byte_string() {
-        return put((byte) BreakByte);
+        return put((byte) Constants.CborInternals.BreakByte);
     }
 
     /**
@@ -338,9 +309,9 @@ public class CborEncoder {
      */
     public CborEncoder cbor_start_text_string(long length) {
         if (length < 0) {
-            return put((byte) CborTextStringWithIndefiniteLength);
+            return put((byte) Constants.CborJumpTable.CborTextStringWithIndefiniteLength);
         } else {
-            return encode_number((byte) CborTextStringType, length);
+            return encode_number((byte) Constants.CborType.CborTextStringType, length);
         }
     }
 
@@ -361,7 +332,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_stop_text_string() {
-        return put((byte) BreakByte);
+        return put((byte) Constants.CborInternals.BreakByte);
     }
 
     /**
@@ -371,7 +342,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_byte_string(byte[] array) {
-        return encode_string((byte) CborByteStringType, array);
+        return encode_string((byte) Constants.CborType.CborByteStringType, array);
     }
 
     /**
@@ -381,7 +352,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_byte_string(ByteBuffer buf) {
-        return encode_string((byte) CborByteStringType, buf);
+        return encode_string((byte) Constants.CborType.CborByteStringType, buf);
     }
 
     /**
@@ -406,7 +377,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_text_string(String str) {
-        return encode_string((byte) CborTextStringType, str.getBytes());
+        return encode_string((byte) Constants.CborType.CborTextStringType, str.getBytes());
     }
 
     /**
@@ -416,7 +387,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_tag(long tag) {
-        return encode_number((byte) CborTagType, tag);
+        return encode_number((byte) Constants.CborType.CborTagType, tag);
     }
 
     /**
@@ -428,7 +399,7 @@ public class CborEncoder {
     public CborEncoder cbor_encode_double(double value) {
         add(Flowable.create(s -> {
             ByteBuffer out = ByteBuffer.allocate(9);
-            out.put((byte) CborDoublePrecisionFloat);
+            out.put((byte) Constants.CborJumpTable.CborDoublePrecisionFloat);
             out.putDouble(value);
             out.flip();
             s.onNext(out);
@@ -446,7 +417,7 @@ public class CborEncoder {
     public CborEncoder cbor_encode_float(float value) {
         add(Flowable.create(s -> {
             ByteBuffer out = ByteBuffer.allocate(5);
-            out.put((byte) CborSinglePrecisionFloat);
+            out.put((byte) Constants.CborJumpTable.CborSinglePrecisionFloat);
             out.putFloat(value);
             out.flip();
             s.onNext(out);
@@ -464,7 +435,7 @@ public class CborEncoder {
     public CborEncoder cbor_encode_half_float(float value) {
         add(Flowable.create(s -> {
             ByteBuffer out = ByteBuffer.allocate(3);
-            out.put((byte) CborHalfPrecisionFloat);
+            out.put((byte) Constants.CborJumpTable.CborHalfPrecisionFloat);
             out.putShort(halfPrecisionToRawIntBits(value));
             out.flip();
             s.onNext(out);
@@ -480,10 +451,10 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_simple_value(byte value) {
-        if ((value & 0xff) <= Break) {
-            return encode_number((byte) (SimpleTypesType << MajorTypeShift), value);
+        if ((value & 0xff) <= Constants.CborSimpleValues.Break) {
+            return encode_number((byte) (Constants.CborMajorTypes.SimpleTypesType << Constants.CborInternals.MajorTypeShift), value);
         } else {
-            return put((byte) CborSimpleValue1ByteFollow, value);
+            return put((byte) Constants.CborJumpTable.CborSimpleValue1ByteFollow, value);
         }
     }
 
@@ -507,7 +478,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_uint(long ui) {
-        return encode_number((byte) (UnsignedIntegerType << MajorTypeShift), ui);
+        return encode_number((byte) (Constants.CborMajorTypes.UnsignedIntegerType << Constants.CborInternals.MajorTypeShift), ui);
     }
 
     /**
@@ -517,7 +488,7 @@ public class CborEncoder {
      * @return this encoder
      */
     public CborEncoder cbor_encode_negative_uint(long absolute_value) {
-        return encode_number((byte) (NegativeIntegerType << MajorTypeShift), absolute_value - 1);
+        return encode_number((byte) (Constants.CborMajorTypes.NegativeIntegerType << Constants.CborInternals.MajorTypeShift), absolute_value - 1);
 
     }
 
@@ -576,24 +547,24 @@ public class CborEncoder {
     private CborEncoder encode_number(final byte shifted_mt, final long ui) {
         add(Flowable.create(s -> {
             ByteBuffer out;
-            if (ui < Value8Bit) {
+            if (ui < Constants.CborAdditionalInfo.Value8Bit) {
                 out = ByteBuffer.allocate(1);
                 out.put((byte) (shifted_mt | ui & 0xff));
             } else if (ui < 0x100L) {
                 out = ByteBuffer.allocate(2);
-                out.put((byte) (shifted_mt | Value8Bit));
+                out.put((byte) (shifted_mt | Constants.CborAdditionalInfo.Value8Bit));
                 out.put((byte) ui);
             } else if (ui < 0x10000L) {
                 out = ByteBuffer.allocate(3);
-                out.put((byte) (shifted_mt | Value16Bit));
+                out.put((byte) (shifted_mt | Constants.CborAdditionalInfo.Value16Bit));
                 out.putShort((short) ui);
             } else if (ui < 0x100000000L) {
                 out = ByteBuffer.allocate(5);
-                out.put((byte) (shifted_mt | Value32Bit));
+                out.put((byte) (shifted_mt | Constants.CborAdditionalInfo.Value32Bit));
                 out.putInt((int) ui);
             } else {
                 out = ByteBuffer.allocate(9);
-                out.put((byte) (shifted_mt | Value64Bit));
+                out.put((byte) (shifted_mt | Constants.CborAdditionalInfo.Value64Bit));
                 out.putLong(ui);
             }
             out.flip();

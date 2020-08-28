@@ -1,4 +1,4 @@
-package io.left.rightmesh.libcbor;
+package io.marlinski.libcbor;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -10,55 +10,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static io.left.rightmesh.libcbor.CBOR.DataItem;
-import static io.left.rightmesh.libcbor.CBOR.IntegerItem;
-import static io.left.rightmesh.libcbor.CBOR.TagItem;
-import static io.left.rightmesh.libcbor.CBOR.SimpleValueItem;
-import static io.left.rightmesh.libcbor.CBOR.FloatingPointItem;
-import static io.left.rightmesh.libcbor.CBOR.ByteStringItem;
-import static io.left.rightmesh.libcbor.CBOR.TextStringItem;
-import static io.left.rightmesh.libcbor.CBOR.ArrayItem;
-import static io.left.rightmesh.libcbor.CBOR.MapItem;
-
-import io.left.rightmesh.libcbor.rxparser.BufferState;
-import io.left.rightmesh.libcbor.rxparser.ByteState;
-import io.left.rightmesh.libcbor.rxparser.DoState;
-import io.left.rightmesh.libcbor.rxparser.IntegerState;
-import io.left.rightmesh.libcbor.rxparser.LongState;
-import io.left.rightmesh.libcbor.rxparser.ParserState;
-import io.left.rightmesh.libcbor.rxparser.RxParserException;
-import io.left.rightmesh.libcbor.rxparser.ShortState;
-
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.IndefiniteLength;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value16Bit;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value32Bit;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value64Bit;
-import static io.left.rightmesh.libcbor.Constants.CborAdditionalInfo.Value8Bit;
-import static io.left.rightmesh.libcbor.Constants.CborInternals.MajorTypeMask;
-import static io.left.rightmesh.libcbor.Constants.CborInternals.MajorTypeShift;
-import static io.left.rightmesh.libcbor.Constants.CborInternals.SmallValueMask;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborBooleanFalse;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborBooleanTrue;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborBreak;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborDoublePrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborHalfPrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborSimpleValue1ByteFollow;
-import static io.left.rightmesh.libcbor.Constants.CborJumpTable.CborSinglePrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.ArrayType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.ByteStringType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.MapType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.NegativeIntegerType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.SimpleTypesType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.TagType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.TextStringType;
-import static io.left.rightmesh.libcbor.Constants.CborMajorTypes.UnsignedIntegerType;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.Break;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.NullValue;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.UndefinedValue;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.SimpleTypeInNextByte;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.HalfPrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.SinglePrecisionFloat;
-import static io.left.rightmesh.libcbor.Constants.CborSimpleValues.DoublePrecisionFloat;
+import io.marlinski.libcbor.rxparser.BufferState;
+import io.marlinski.libcbor.rxparser.ByteState;
+import io.marlinski.libcbor.rxparser.DoState;
+import io.marlinski.libcbor.rxparser.IntegerState;
+import io.marlinski.libcbor.rxparser.LongState;
+import io.marlinski.libcbor.rxparser.ParserState;
+import io.marlinski.libcbor.rxparser.RxParserException;
+import io.marlinski.libcbor.rxparser.ShortState;
 
 public class CborParser {
 
@@ -520,10 +479,10 @@ public class CborParser {
         return this;
     }
 
-    public CborParser cbor_parse_generic(ParsedItemCallback<DataItem> cb) {
+    public CborParser cbor_parse_generic(ParsedItemCallback<CBOR.DataItem> cb) {
         parserQueue.add(new CborParseGenericItem() {
             @Override
-            public ParserState onSuccess(DataItem item) throws RxParserException {
+            public ParserState onSuccess(CBOR.DataItem item) throws RxParserException {
                 cb.onItemParsed((ParserInCallback) parser_ref, item);
                 return null;
             }
@@ -531,10 +490,10 @@ public class CborParser {
         return this;
     }
 
-    public CborParser cbor_parse_generic(EnumSet<ExpectedType> types, ParsedItemCallback<DataItem> cb) {
+    public CborParser cbor_parse_generic(EnumSet<ExpectedType> types, ParsedItemCallback<CBOR.DataItem> cb) {
         parserQueue.add(new CborParseGenericItem(types) {
             @Override
-            public ParserState onSuccess(DataItem item) throws RxParserException {
+            public ParserState onSuccess(CBOR.DataItem item) throws RxParserException {
                 cb.onItemParsed((ParserInCallback) parser_ref, item);
                 return null;
             }
@@ -1033,7 +992,7 @@ public class CborParser {
     }
 
     public CborParser cbor_open_map(ContainerIsOpenCallback cb) {
-        return cbor_open_container(cb, MapType);
+        return cbor_open_container(cb, Constants.CborMajorTypes.MapType);
     }
 
     public CborParser cbor_close_map() {
@@ -1045,11 +1004,11 @@ public class CborParser {
     }
 
     public CborParser cbor_open_array(ContainerIsOpenCallback cb) {
-        return cbor_open_container(cb, ArrayType);
+        return cbor_open_container(cb, Constants.CborMajorTypes.ArrayType);
     }
 
     public CborParser cbor_open_array(int expectedSize) {
-        return cbor_open_container_expected_size(expectedSize, ArrayType);
+        return cbor_open_container_expected_size(expectedSize, Constants.CborMajorTypes.ArrayType);
     }
 
     public CborParser cbor_open_container(ContainerIsOpenCallback cb,
@@ -1298,41 +1257,41 @@ public class CborParser {
 
         @Override
         public ParserState onItemFound(int mt, byte b) throws RxParserException {
-            if (((mt == UnsignedIntegerType) || (mt == NegativeIntegerType)) && (filter_int)) {
+            if (((mt == Constants.CborMajorTypes.UnsignedIntegerType) || (mt == Constants.CborMajorTypes.NegativeIntegerType)) && (filter_int)) {
                 return parse_integer;
             }
-            if ((mt == ByteStringType) && (filter_byte_string)) {
+            if ((mt == Constants.CborMajorTypes.ByteStringType) && (filter_byte_string)) {
                 return parse_byte_string;
             }
-            if ((mt == TextStringType) && (filter_text_string)) {
+            if ((mt == Constants.CborMajorTypes.TextStringType) && (filter_text_string)) {
                 return parse_text_string;
             }
 
-            if ((mt == ArrayType) && (filter_array)) {
+            if ((mt == Constants.CborMajorTypes.ArrayType) && (filter_array)) {
                 return parse_array_size;
             }
-            if ((mt == MapType) && (filter_map)) {
+            if ((mt == Constants.CborMajorTypes.MapType) && (filter_map)) {
                 return parse_map_size;
             }
 
-            if ((mt == TagType) && (filter_tag)) {
+            if ((mt == Constants.CborMajorTypes.TagType) && (filter_tag)) {
                 return parse_tag;
             }
-            if (mt == SimpleTypesType) {
-                switch (b & SmallValueMask) {
-                    case SimpleTypeInNextByte:
+            if (mt == Constants.CborMajorTypes.SimpleTypesType) {
+                switch (b & Constants.CborInternals.SmallValueMask) {
+                    case Constants.CborSimpleValues.SimpleTypeInNextByte:
                         if (filter_simple) {
                             return parse_simple_value;
                         }
-                    case HalfPrecisionFloat:
+                    case Constants.CborSimpleValues.HalfPrecisionFloat:
                         if (filter_float) {
                             return parse_float;
                         }
-                    case SinglePrecisionFloat:
+                    case Constants.CborSimpleValues.SinglePrecisionFloat:
                         if (filter_float) {
                             return parse_float;
                         }
-                    case DoublePrecisionFloat:
+                    case Constants.CborSimpleValues.DoublePrecisionFloat:
                         if (filter_float) {
                             return parse_float;
                         }
@@ -1353,7 +1312,7 @@ public class CborParser {
 
             @Override
             public ParserState onSuccess(long obj) throws RxParserException {
-                return CborParseGenericItem.this.onSuccess(new IntegerItem(tags, obj));
+                return CborParseGenericItem.this.onSuccess(new CBOR.IntegerItem(tags, obj));
             }
         };
 
@@ -1365,7 +1324,7 @@ public class CborParser {
 
             @Override
             public ParserState onSuccess(Double obj) throws RxParserException {
-                return CborParseGenericItem.this.onSuccess(new FloatingPointItem(tags, obj));
+                return CborParseGenericItem.this.onSuccess(new CBOR.FloatingPointItem(tags, obj));
             }
         };
 
@@ -1381,7 +1340,7 @@ public class CborParser {
 
             @Override
             public ParserState onSuccessUnsafe(ByteBuffer obj) throws RxParserException {
-                return CborParseGenericItem.this.onSuccess(new ByteStringItem(tags, obj));
+                return CborParseGenericItem.this.onSuccess(new CBOR.ByteStringItem(tags, obj));
             }
         };
 
@@ -1399,13 +1358,13 @@ public class CborParser {
             @Override
             public ParserState onSuccessUnsafe(ByteBuffer obj) throws RxParserException {
                 String str = StandardCharsets.UTF_8.decode(obj).toString();
-                return CborParseGenericItem.this.onSuccess(new TextStringItem(tags, str));
+                return CborParseGenericItem.this.onSuccess(new CBOR.TextStringItem(tags, str));
             }
         };
 
-        ExtractContainerSize parse_array_size = new ExtractContainerSize(ArrayType) {
+        ExtractContainerSize parse_array_size = new ExtractContainerSize(Constants.CborMajorTypes.ArrayType) {
             long size;
-            Collection<DataItem> array;
+            Collection<CBOR.DataItem> array;
 
             @Override
             public void onTagFound(long tag) {
@@ -1420,7 +1379,7 @@ public class CborParser {
                     return checkBreak;
                 }
                 if (size == 0) {
-                    return CborParseGenericItem.this.onSuccess(new ArrayItem(tags, array));
+                    return CborParseGenericItem.this.onSuccess(new CBOR.ArrayItem(tags, array));
                 }
                 // if size > 0
                 return extractNestedItem();
@@ -1430,9 +1389,9 @@ public class CborParser {
                 @Override
                 public ParserState onNext(ByteBuffer next) throws RxParserException {
                     byte b = peek(next);
-                    if ((b & 0xff) == CborBreak) {
+                    if ((b & 0xff) == Constants.CborJumpTable.CborBreak) {
                         next.get();
-                        return CborParseGenericItem.this.onSuccess(new ArrayItem(tags, array));
+                        return CborParseGenericItem.this.onSuccess(new CBOR.ArrayItem(tags, array));
                     } else {
                         return extractNestedItem();
                     }
@@ -1444,7 +1403,7 @@ public class CborParser {
             CborParseGenericItem extractNestedItem() {
                 return new CborParseGenericItem() {
                     @Override
-                    public ParserState onSuccess(DataItem item) throws RxParserException {
+                    public ParserState onSuccess(CBOR.DataItem item) throws RxParserException {
                         array.add(item);
                         size--;
                         if (size < 0) {
@@ -1452,7 +1411,7 @@ public class CborParser {
                         }
                         if (size == 0) {
                             // it is a win, exit the recursion
-                            return outer.onSuccess(new ArrayItem(tags, array));
+                            return outer.onSuccess(new CBOR.ArrayItem(tags, array));
                         }
                         // size > 0
                         return extractNestedItem();
@@ -1461,10 +1420,10 @@ public class CborParser {
             }
         };
 
-        ExtractContainerSize parse_map_size = new ExtractContainerSize(MapType) {
+        ExtractContainerSize parse_map_size = new ExtractContainerSize(Constants.CborMajorTypes.MapType) {
             long size;
-            Map<DataItem, DataItem> map;
-            DataItem currentKey;
+            Map<CBOR.DataItem, CBOR.DataItem> map;
+            CBOR.DataItem currentKey;
 
             @Override
             public void onTagFound(long tag) {
@@ -1479,7 +1438,7 @@ public class CborParser {
                     return checkBreak;
                 }
                 if (size == 0) {
-                    return CborParseGenericItem.this.onSuccess(new MapItem(tags, map));
+                    return CborParseGenericItem.this.onSuccess(new CBOR.MapItem(tags, map));
                 }
                 // if size > 0
                 return extractNextNestedKey();
@@ -1489,9 +1448,9 @@ public class CborParser {
                 @Override
                 public ParserState onNext(ByteBuffer next) throws RxParserException {
                     byte b = peek(next);
-                    if ((b & 0xff) == CborBreak) {
+                    if ((b & 0xff) == Constants.CborJumpTable.CborBreak) {
                         next.get();
-                        return CborParseGenericItem.this.onSuccess(new MapItem(tags, map));
+                        return CborParseGenericItem.this.onSuccess(new CBOR.MapItem(tags, map));
                     } else {
                         return extractNextNestedKey();
                     }
@@ -1501,7 +1460,7 @@ public class CborParser {
             CborParseGenericItem extractNextNestedKey() {
                 return new CborParseGenericItem() {
                     @Override
-                    public ParserState onSuccess(DataItem item) {
+                    public ParserState onSuccess(CBOR.DataItem item) {
                         currentKey = item;
                         return extractNextNestedValue();
                     }
@@ -1513,14 +1472,14 @@ public class CborParser {
             CborParseGenericItem extractNextNestedValue() {
                 return new CborParseGenericItem() {
                     @Override
-                    public ParserState onSuccess(DataItem item) throws RxParserException {
+                    public ParserState onSuccess(CBOR.DataItem item) throws RxParserException {
                         map.put(currentKey, item);
                         size--;
                         if (size < 0) {
                             return checkBreak;
                         }
                         if (size == 0) {
-                            return outer.onSuccess(new MapItem(tags, map));
+                            return outer.onSuccess(new CBOR.MapItem(tags, map));
                         }
                         // size > 0
                         return extractNextNestedKey();
@@ -1532,7 +1491,7 @@ public class CborParser {
         CborParseTag parse_tag = new CborParseTag() {
             @Override
             public ParserState onSuccess(long tag) throws RxParserException {
-                return CborParseGenericItem.this.onSuccess(new TagItem(tag));
+                return CborParseGenericItem.this.onSuccess(new CBOR.TagItem(tag));
             }
         };
 
@@ -1544,17 +1503,17 @@ public class CborParser {
 
             @Override
             public ParserState onSimplevalue(int value) throws RxParserException {
-                return CborParseGenericItem.this.onSuccess(new SimpleValueItem(value));
+                return CborParseGenericItem.this.onSuccess(new CBOR.SimpleValueItem(value));
             }
         };
 
-        public abstract ParserState onSuccess(DataItem item) throws RxParserException;
+        public abstract ParserState onSuccess(CBOR.DataItem item) throws RxParserException;
     }
 
     private abstract static class CborParseBreak extends CborParseSimpleValue {
         @Override
         public ParserState onSimplevalue(int value) throws RxParserException {
-            if (value != Break) {
+            if (value != Constants.CborSimpleValues.Break) {
                 throw new RxParserException("CborParseBreak", "Not a Break Value");
             } else {
                 return onBreak();
@@ -1567,7 +1526,7 @@ public class CborParser {
     private abstract static class CborParseNull extends CborParseSimpleValue {
         @Override
         public ParserState onSimplevalue(int value) throws RxParserException {
-            if (value != NullValue) {
+            if (value != Constants.CborSimpleValues.NullValue) {
                 throw new RxParserException("CborParseNull", "Not a Null Value");
             } else {
                 return onNull();
@@ -1580,7 +1539,7 @@ public class CborParser {
     private abstract static class CborParseUndefined extends CborParseSimpleValue {
         @Override
         public ParserState onSimplevalue(int value) throws RxParserException {
-            if (value != UndefinedValue) {
+            if (value != Constants.CborSimpleValues.UndefinedValue) {
                 throw new RxParserException("CborParseUndefined", "Not an Undefined Value");
             } else {
                 return onUndefined();
@@ -1598,13 +1557,13 @@ public class CborParser {
 
         @Override
         public ParserState onItemFound(int majorType, byte b) throws RxParserException {
-            if (majorType != SimpleTypesType) {
+            if (majorType != Constants.CborMajorTypes.SimpleTypesType) {
                 throw new RxParserException("CborParseSimpleValue", "Unexpected major type: " + majorType);
             }
-            if ((b & 0xff) == CborSimpleValue1ByteFollow) {
+            if ((b & 0xff) == Constants.CborJumpTable.CborSimpleValue1ByteFollow) {
                 return extractNextByte;
             }
-            return onSimplevalue(b & SmallValueMask);
+            return onSimplevalue(b & Constants.CborInternals.SmallValueMask);
         }
 
         ParserState extractNextByte = new ParserState() {
@@ -1624,7 +1583,7 @@ public class CborParser {
         ItemFactory<T> factory;
 
         CborParseLinearArray(ItemFactory<T> factory) {
-            super(ArrayType);
+            super(Constants.CborMajorTypes.ArrayType);
             this.factory = factory;
         }
 
@@ -1647,7 +1606,7 @@ public class CborParser {
             @Override
             public ParserState onNext(ByteBuffer next) throws RxParserException {
                 byte b = peek(next);
-                if ((b & 0xff) == CborBreak) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborBreak) {
                     next.get();
                     return onArrayIsClose();
                 } else {
@@ -1730,7 +1689,7 @@ public class CborParser {
             @Override
             public ParserState onNext(ByteBuffer next) throws RxParserException {
                 byte b = peek(next);
-                if ((b & 0xff) == CborBreak) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborBreak) {
                     next.get();
                     return onArrayIsClose();
                 } else {
@@ -1792,7 +1751,7 @@ public class CborParser {
 
         CborParseLinearMap(ItemFactory<T> keyFactory,
                            ItemFactory<U> valueFactory) {
-            super(MapType);
+            super(Constants.CborMajorTypes.MapType);
             this.keyFactory = keyFactory;
             this.valueFactory = valueFactory;
         }
@@ -1816,7 +1775,7 @@ public class CborParser {
             @Override
             public ParserState onNext(ByteBuffer next) throws RxParserException {
                 byte b = peek(next);
-                if ((b & 0xff) == CborBreak) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborBreak) {
                     next.get();
                     return onMapIsClose();
                 } else {
@@ -1890,7 +1849,7 @@ public class CborParser {
 
         @Override
         public ParserState onItemFound(int majorType, byte b) throws RxParserException {
-            if ((majorType == UnsignedIntegerType) || (majorType == NegativeIntegerType)) {
+            if ((majorType == Constants.CborMajorTypes.UnsignedIntegerType) || (majorType == Constants.CborMajorTypes.NegativeIntegerType)) {
                 this.mt = majorType;
                 return extractInteger;
             }
@@ -1925,13 +1884,13 @@ public class CborParser {
             @Override
             public ParserState onNext(ByteBuffer next) throws RxParserException {
                 byte b = next.get();
-                if ((b & 0xff) == CborHalfPrecisionFloat) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborHalfPrecisionFloat) {
                     return getUInt16;
                 }
-                if ((b & 0xff) == CborSinglePrecisionFloat) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborSinglePrecisionFloat) {
                     return getUInt32;
                 }
-                if ((b & 0xff) == CborDoublePrecisionFloat) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborDoublePrecisionFloat) {
                     return getUInt64;
                 }
                 throw new RxParserException("CborParseFloat", "Expected Float-Family major type but got: " + (b & 0xff));
@@ -1984,10 +1943,10 @@ public class CborParser {
 
         @Override
         public ParserState onItemFound(int majorType, byte b) throws RxParserException {
-            if ((b & 0xff) == CborBooleanFalse) {
+            if ((b & 0xff) == Constants.CborJumpTable.CborBooleanFalse) {
                 return onSuccess(false);
             }
-            if ((b & 0xff) == CborBooleanTrue) {
+            if ((b & 0xff) == Constants.CborJumpTable.CborBooleanTrue) {
                 return onSuccess(true);
             }
             throw new RxParserException("CborParseBooleans", "Non boolean type: " + b);
@@ -2000,11 +1959,11 @@ public class CborParser {
         @Override
         public ParserState onNext(ByteBuffer next) throws RxParserException {
             byte b = peek(next);
-            int mt = (((b & MajorTypeMask) & 0xff) >>> MajorTypeShift);
-            if (mt == TagType) {
+            int mt = (((b & Constants.CborInternals.MajorTypeMask) & 0xff) >>> Constants.CborInternals.MajorTypeShift);
+            if (mt == Constants.CborMajorTypes.TagType) {
                 return extractInteger;
             }
-            throw new RxParserException("CborParseTag", "Unexpected major type: " + mt + " expected " + TagType);
+            throw new RxParserException("CborParseTag", "Unexpected major type: " + mt + " expected " + Constants.CborMajorTypes.TagType);
         }
 
         ExtractInteger extractInteger = new ExtractInteger() {
@@ -2022,25 +1981,25 @@ public class CborParser {
 
     private abstract static class CborParseTextString extends CborParseString {
         public CborParseTextString() {
-            super(TextStringType);
+            super(Constants.CborMajorTypes.TextStringType);
         }
     }
 
     private abstract static class CborParseByteString extends CborParseString {
         public CborParseByteString() {
-            super(ByteStringType);
+            super(Constants.CborMajorTypes.ByteStringType);
         }
     }
 
     private abstract static class CborParseTextStringUnsafe extends CborParseStringUnsafe {
         CborParseTextStringUnsafe() {
-            super(TextStringType);
+            super(Constants.CborMajorTypes.TextStringType);
         }
     }
 
     private abstract static class CborParseByteStringUnsafe extends CborParseStringUnsafe {
         CborParseByteStringUnsafe() {
-            super(ByteStringType);
+            super(Constants.CborMajorTypes.ByteStringType);
         }
     }
 
@@ -2141,7 +2100,7 @@ public class CborParser {
             @Override
             public ParserState onNext(ByteBuffer next) throws RxParserException {
                 byte b = peek(next);
-                if ((b & 0xff) == CborBreak) {
+                if ((b & 0xff) == Constants.CborJumpTable.CborBreak) {
                     next.get();
                     return CborParseString.this.onSuccess();
                 } else {
@@ -2218,23 +2177,23 @@ public class CborParser {
         @Override
         public ParserState onNext(ByteBuffer next) throws RxParserException {
             byte b = next.get();
-            int adv = (b & SmallValueMask);
-            if (adv < Value8Bit) {
+            int adv = (b & Constants.CborInternals.SmallValueMask);
+            if (adv < Constants.CborAdditionalInfo.Value8Bit) {
                 return onSuccess((long) adv);
             }
-            if (adv == Value8Bit) {
+            if (adv == Constants.CborAdditionalInfo.Value8Bit) {
                 return getUInt8;
             }
-            if (adv == Value16Bit) {
+            if (adv == Constants.CborAdditionalInfo.Value16Bit) {
                 return getUInt16;
             }
-            if (adv == Value32Bit) {
+            if (adv == Constants.CborAdditionalInfo.Value32Bit) {
                 return getUInt32;
             }
-            if (adv == Value64Bit) {
+            if (adv == Constants.CborAdditionalInfo.Value64Bit) {
                 return getUInt64;
             }
-            if (adv == IndefiniteLength) {
+            if (adv == Constants.CborAdditionalInfo.IndefiniteLength) {
                 // indefinite
                 return ExtractInteger.this.onSuccess(-1L);
             }
@@ -2283,8 +2242,8 @@ public class CborParser {
         @Override
         public ParserState onNext(ByteBuffer next) throws RxParserException {
             byte b = must_peek ? peek(next) : next.get();
-            int mt = (((b & MajorTypeMask) & 0xff) >>> MajorTypeShift);
-            if (mt == TagType) {
+            int mt = (((b & Constants.CborInternals.MajorTypeMask) & 0xff) >>> Constants.CborInternals.MajorTypeShift);
+            if (mt == Constants.CborMajorTypes.TagType) {
                 return extractTag;
             } else {
                 return onItemFound(mt, b);

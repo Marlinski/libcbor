@@ -1,4 +1,4 @@
-package io.left.rightmesh.libcbor;
+package io.marlinski.libcbor;
 
 /**
  * Constant values used by the CBOR format.

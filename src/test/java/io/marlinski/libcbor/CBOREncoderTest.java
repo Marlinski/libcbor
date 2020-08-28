@@ -1,4 +1,4 @@
-package io.left.rightmesh.libcbor;
+package io.marlinski.libcbor;
 
 import org.junit.Test;
 

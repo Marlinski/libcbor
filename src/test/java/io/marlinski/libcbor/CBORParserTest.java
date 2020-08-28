@@ -1,4 +1,4 @@
-package io.left.rightmesh.libcbor;
+package io.marlinski.libcbor;
 
 import org.junit.Test;
 
@@ -9,17 +9,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import io.left.rightmesh.libcbor.CBOR.ArrayItem;
-import io.left.rightmesh.libcbor.CBOR.MapItem;
-import io.left.rightmesh.libcbor.CBOR.DataItem;
-import io.left.rightmesh.libcbor.CBOR.IntegerItem;
-import io.left.rightmesh.libcbor.CBOR.TextStringItem;
-import io.left.rightmesh.libcbor.rxparser.RxParserException;
-import io.reactivex.Flowable;
+import io.marlinski.libcbor.CBOR.ArrayItem;
+import io.marlinski.libcbor.CBOR.MapItem;
+import io.marlinski.libcbor.CBOR.DataItem;
+import io.marlinski.libcbor.CBOR.IntegerItem;
+import io.marlinski.libcbor.CBOR.TextStringItem;
+import io.marlinski.libcbor.rxparser.RxParserException;
+import io.reactivex.rxjava3.core.Flowable;
 
-import static io.left.rightmesh.libcbor.CborParser.ExpectedType.Array;
-import static io.left.rightmesh.libcbor.CborParser.ExpectedType.Map;
-import static io.left.rightmesh.libcbor.Constants.CborType.CborSimpleType;
+import static io.marlinski.libcbor.CborParser.ExpectedType.Array;
+import static io.marlinski.libcbor.CborParser.ExpectedType.Map;
+import static io.marlinski.libcbor.Constants.CborType.CborSimpleType;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

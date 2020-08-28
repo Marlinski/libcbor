@@ -1,4 +1,4 @@
-package io.left.rightmesh.libcbor.rxparser;
+package io.marlinski.libcbor.rxparser;
 
 import java.nio.ByteBuffer;
 

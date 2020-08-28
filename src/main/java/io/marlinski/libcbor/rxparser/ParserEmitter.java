@@ -1,9 +1,9 @@
-package io.left.rightmesh.libcbor.rxparser;
-
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+package io.marlinski.libcbor.rxparser;
 
 import java.nio.ByteBuffer;
+
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  * ParserEmitter is the class that do the actual business of parsing and emitting items.

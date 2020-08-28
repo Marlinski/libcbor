@@ -1,9 +1,9 @@
-package io.left.rightmesh.libcbor.rxparser;
-
-import io.reactivex.Observable;
-import io.reactivex.Observer;
+package io.marlinski.libcbor.rxparser;
 
 import java.nio.ByteBuffer;
+
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
 
 /**
  * RxParser is a generic class for asynchronous parsing following the state

@@ -1,4 +1,4 @@
-package io.left.rightmesh.libcbor.rxparser;
+package io.marlinski.libcbor.rxparser;
 
 /**
  * @author Lucien Loiseau on 09/09/18.
