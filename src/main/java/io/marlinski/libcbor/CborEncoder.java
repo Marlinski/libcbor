@@ -363,22 +363,20 @@ public class CborEncoder {
      */
     public CborEncoder cbor_encode_byte_string(Flowable<ByteBuffer> source) {
         cbor_start_byte_string(-1);
-        add(source.flatMap(buffer -> CBOR.encoder().cbor_encode_byte_string(buffer).observe()));
-        cbor_stop_byte_string();
+        add(source.map(ByteBuffer::duplicate));
         return this;
     }
 
     /**
      * Add a byte string from a Flowable whose size if undefined
      *
-     * @param size of the byte string
+     * @param length of the byte string
      * @param source to encode
      * @return this encoder
      */
     public CborEncoder cbor_encode_byte_string(long length, Flowable<ByteBuffer> source) {
         cbor_start_byte_string(length);
-        add(source.flatMap(buffer -> CBOR.encoder().cbor_encode_byte_string(buffer).observe()));
-        cbor_stop_byte_string();
+        add(source.map(ByteBuffer::duplicate));
         return this;
     }
 

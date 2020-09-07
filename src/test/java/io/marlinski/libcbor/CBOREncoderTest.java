@@ -3,11 +3,14 @@ package io.marlinski.libcbor;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+
+import io.reactivex.rxjava3.core.Flowable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -262,9 +265,25 @@ public class CBOREncoderTest {
                 .cbor_encode_byte_string(a2);
         assertEquals("0xd818456449455446", getEncodedString());
 
+        enc.cbor_encode_tag(24)
+                .cbor_encode_byte_string(5, Flowable
+                        .just((byte) 0x64, (byte) 0x49, (byte) 0x45, (byte) 0x54, (byte) 0x46)
+                        .map(b -> {
+                            ByteBuffer bb = ByteBuffer.allocate(1).put(b);
+                            bb.flip();
+                            return bb;
+                        }));
+        assertEquals("0xd818456449455446", getEncodedString());
+
         enc.cbor_encode_tag(32)
                 .cbor_encode_text_string("http://www.example.com");
         assertEquals("0xd82076687474703a2f2f7777772e6578616d706c652e636f6d", getEncodedString());
+
+        enc.cbor_encode_tag(32)
+                .cbor_encode_byte_string(5, Flowable
+                        .just("http://www.example.com")
+                        .map(s -> ByteBuffer.wrap(s.getBytes())));
+        assertEquals("0xd82045687474703a2f2f7777772e6578616d706c652e636f6d", getEncodedString());
     }
 
     @Test
