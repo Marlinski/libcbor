@@ -379,6 +379,10 @@ public class CborParser {
         T createItem();
     }
 
+    public interface ArrayItemFactory<T extends ParseableItem> {
+        T createItem(long position);
+    }
+
     public interface FilterCallback {
         void onFilter(ParserInCallback parser, ByteBuffer buffer);
     }
@@ -850,13 +854,13 @@ public class CborParser {
     }
 
     public <T extends ParseableItem> CborParser cbor_parse_linear_array(
-            ItemFactory<T> factory,
+            ArrayItemFactory<T> factory,
             ContainerIsCloseWithCollectionCallback<T> cb) {
         return cbor_parse_linear_array(factory, null, null, cb);
     }
 
     public <T extends ParseableItem> CborParser cbor_parse_linear_array(
-            ItemFactory<T> factory,
+            ArrayItemFactory<T> factory,
             ContainerIsOpenCallback cb1,
             ParsedItemWithTagsCallback<T> cb2,
             ContainerIsCloseWithCollectionCallback<T> cb3) {
@@ -898,13 +902,13 @@ public class CborParser {
     }
 
     public <T extends ParseableItem> CborParser cbor_parse_linear_array_stream(
-            ItemFactory<T> factory,
+            ArrayItemFactory<T> factory,
             ParsedItemWithTagsCallback<T> cb) {
         return cbor_parse_linear_array_stream(factory, null, cb, null);
     }
 
     public <T extends ParseableItem> CborParser cbor_parse_linear_array_stream(
-            ItemFactory<T> factory,
+            ArrayItemFactory<T> factory,
             ContainerIsOpenCallback cb1,
             ParsedItemWithTagsCallback<T> cb2,
             ContainerIsCloseCallback cb3) {
@@ -942,15 +946,15 @@ public class CborParser {
     }
 
     public <T extends ParseableItem, U extends ParseableItem> CborParser cbor_parse_linear_map(
-            ItemFactory<T> keyFactory,
-            ItemFactory<U> valueFactory,
+            ArrayItemFactory<T> keyFactory,
+            ArrayItemFactory<U> valueFactory,
             ContainerIsCloseWithMapCallback<T, U> cb) {
         return cbor_parse_linear_map(keyFactory, valueFactory, null, null, cb);
     }
 
     public <T extends ParseableItem, U extends ParseableItem> CborParser cbor_parse_linear_map(
-            ItemFactory<T> keyFactory,
-            ItemFactory<U> valueFactory,
+            ArrayItemFactory<T> keyFactory,
+            ArrayItemFactory<U> valueFactory,
             ContainerIsOpenCallback cb1,
             ParsedMapEntryCallback<T, U> cb2,
             ContainerIsCloseWithMapCallback<T, U> cb3) {
@@ -1580,11 +1584,13 @@ public class CborParser {
     private abstract static class CborParseLinearArray<T extends ParseableItem> extends ExtractContainerSize {
 
         long size;
-        ItemFactory<T> factory;
+        long pos;
+        ArrayItemFactory<T> factory;
 
-        CborParseLinearArray(ItemFactory<T> factory) {
+        CborParseLinearArray(ArrayItemFactory<T> factory) {
             super(Constants.CborMajorTypes.ArrayType);
             this.factory = factory;
+            this.pos = 0;
         }
 
         @Override
@@ -1639,7 +1645,7 @@ public class CborParser {
             ParserState actualExtract = new ParserState() {
                 @Override
                 public void onEnter() {
-                    item = factory.createItem();
+                    item = factory.createItem(pos++);
                     parser = item.getItemParser();
                 }
 
@@ -1745,12 +1751,13 @@ public class CborParser {
     private abstract static class CborParseLinearMap<T extends ParseableItem, U extends ParseableItem> extends ExtractContainerSize {
 
         long size;
-        ItemFactory<T> keyFactory;
-        ItemFactory<U> valueFactory;
+        long pos;
+        ArrayItemFactory<T> keyFactory;
+        ArrayItemFactory<U> valueFactory;
         T currentKey;
 
-        CborParseLinearMap(ItemFactory<T> keyFactory,
-                           ItemFactory<U> valueFactory) {
+        CborParseLinearMap(ArrayItemFactory<T> keyFactory,
+                           ArrayItemFactory<U> valueFactory) {
             super(Constants.CborMajorTypes.MapType);
             this.keyFactory = keyFactory;
             this.valueFactory = valueFactory;
@@ -1789,7 +1796,7 @@ public class CborParser {
 
             @Override
             public void onEnter() {
-                currentKey = keyFactory.createItem();
+                currentKey = keyFactory.createItem(pos);
                 parser = currentKey.getItemParser();
             }
 
@@ -1808,7 +1815,7 @@ public class CborParser {
 
             @Override
             public void onEnter() {
-                value = valueFactory.createItem();
+                value = valueFactory.createItem(pos++);
                 parser = value.getItemParser();
             }
 

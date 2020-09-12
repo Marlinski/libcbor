@@ -482,8 +482,8 @@ public class CBORParserTest {
             m.put("d", "D");
             m.put("e", "E");
             b = dec.cbor_parse_linear_map(
-                    TextStringItem::new,
-                    TextStringItem::new,
+                    (pos) -> new TextStringItem(),
+                    (pos) -> new TextStringItem(),
                     (__, ___, map) -> {
                         assertEquals(m.size(), map.size());
                         for (TextStringItem str : map.keySet()) {
@@ -497,8 +497,8 @@ public class CBORParserTest {
             b = dec.cbor_open_array(2)
                     .cbor_parse_text_string_full((__, s) -> assertEquals("a", s))
                     .cbor_parse_linear_map(
-                            TextStringItem::new,
-                            TextStringItem::new,
+                            (pos) -> new TextStringItem(),
+                            (pos) -> new TextStringItem(),
                             (__, ___, map) -> {
                                 assertEquals(1, map.size());
                             }).read(hexToBuf("0x826161a161626163"));
